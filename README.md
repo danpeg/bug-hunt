@@ -1,10 +1,12 @@
-# Bug Hunt
+<img width="1280" height="480" alt="image" src="https://github.com/user-attachments/assets/8432d699-b4bb-4049-afcc-d2430ac1b58e" />
+
+# /bug-hunt
 
 Adversarial bug finding skill for [Claude Code](https://claude.com/claude-code). Uses 3 isolated AI agents to find and verify real bugs with high fidelity.
 
 ## How it works
 
-Inspired by [@systematicls's article](https://x.com/systematicls) on exploiting LLM sycophancy for better code review:
+Inspired by [@systematicls's article]([https://x.com/systematicls](https://x.com/systematicls/status/2028814227004395561)) on exploiting LLM sycophancy for better code review:
 
 1. **Hunter** - Scans your code and reports every possible bug (biased to over-report)
 2. **Skeptic** - Tries to disprove each bug (biased to dismiss false positives)
@@ -51,6 +53,8 @@ The scoring incentives are load-bearing — they exploit each agent's desire to 
 ## Attribution
 
 Based on the adversarial bug hunting technique described by [@systematicls](https://x.com/systematicls) in "How To Be A World-Class Agentic Engineer."
+
+Brand by [Kitt](https://x.com/Kitt_Curious) at [Curious Endeavor](https://curiousendeavor.com/)
 
 ## Contributing
 
