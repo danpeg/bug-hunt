@@ -30,6 +30,42 @@ Claude Code auto-discovers skills in `~/.claude/skills/`.
 /bug-hunt lib/auth.ts  # Scan specific file
 ```
 
+### Dynamic Model Assignment
+
+Assign different AI providers to each role using CLI flags. Defaults to all-Claude when no flags are given.
+
+**Presets:**
+
+```
+/bug-hunt --preset=claude src/     # All Claude (default)
+/bug-hunt --preset=codex src/      # All Codex
+/bug-hunt --preset=gemini src/     # All Gemini
+/bug-hunt --preset=mixed src/      # Hunter=Codex, Skeptic=Claude, Referee=Gemini
+```
+
+**Individual role overrides:**
+
+```
+/bug-hunt --hunter=codex --skeptic=claude --referee=gemini src/
+/bug-hunt --hunter=codex src/      # Only Hunter uses Codex, rest default to Claude
+```
+
+Individual flags override preset values:
+
+```
+/bug-hunt --preset=codex --referee=claude src/   # Codex for Hunter+Skeptic, Claude for Referee
+```
+
+**Supported providers:**
+
+| Provider | CLI Required | Install |
+|----------|-------------|---------|
+| `claude` | None (built-in) | Included with Claude Code |
+| `codex` | [Codex CLI](https://github.com/openai/codex) | `npm install -g @openai/codex` |
+| `gemini` | [Gemini CLI](https://github.com/google-gemini/gemini-cli) | `npm install -g @google/gemini-cli` |
+
+Claude roles run as isolated Claude Code subagents. Codex and Gemini roles shell out to their respective CLI tools.
+
 ## Update
 
 ```bash
