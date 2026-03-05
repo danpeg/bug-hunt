@@ -6,7 +6,7 @@ Adversarial bug finding skill for [Claude Code](https://claude.com/claude-code).
 
 ## How it works
 
-Inspired by [@systematicls's article]([https://x.com/systematicls](https://x.com/systematicls/status/2028814227004395561)) on exploiting LLM sycophancy for better code review:
+Inspired by [@systematicls's article](https://x.com/systematicls/status/2028814227004395561) on exploiting LLM sycophancy for better code review:
 
 1. **Hunter** - Scans your code and reports every possible bug (biased to over-report)
 2. **Skeptic** - Tries to disprove each bug (biased to dismiss false positives)

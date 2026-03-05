@@ -13,7 +13,7 @@ Run a 3-agent adversarial bug hunt on your codebase. Each agent runs in isolatio
 
 The raw arguments are: $ARGUMENTS
 
-## Step 0: Parse Arguments
+## Step 0: Parse and Validate Arguments
 
 Parse the arguments string above to extract:
 
@@ -21,6 +21,11 @@ Parse the arguments string above to extract:
 2. **Scan target**: Everything that is NOT a flag (no `--` prefix)
 
 **Valid providers:** `claude`, `codex`, `gemini`
+
+**Validation:** If any provider flag contains a value other than `claude`, `codex`, or `gemini`, stop immediately and report the error:
+```
+Error: Invalid provider "[value]". Valid providers are: claude, codex, gemini
+```
 
 **Preset definitions:**
 
@@ -37,7 +42,12 @@ Parse the arguments string above to extract:
 
 If no arguments were provided or only a path was given, all roles default to `claude`.
 
-After parsing, announce the configuration to the user:
+**Target validation:** If a scan target was specified, verify it exists using Glob or the filesystem before proceeding. If the target does not exist, stop immediately and report:
+```
+Error: Scan target "[path]" does not exist.
+```
+
+After parsing and validation, announce the configuration to the user:
 
 ```
 Bug Hunt Configuration:
@@ -62,21 +72,26 @@ Dispatch the Hunter based on its assigned provider:
 Launch a general-purpose subagent with the hunter prompt via the Agent tool. Include the scan target in the agent's task. The Hunter must use tools (Read, Glob, Grep) to examine the actual code.
 
 **If provider is `codex` or `gemini`:**
-Run the external CLI tool via the Bash tool. The command format depends on the provider:
+Write the full prompt (hunter instructions + scan target) to a unique temporary file using `mktemp`:
 
-- **Codex:** `codex exec "You must scan the following target: [scan_target]. [hunter prompt content]"`
-- **Gemini:** `gemini -p "You must scan the following target: [scan_target]. [hunter prompt content]"`
+```bash
+PROMPT_FILE=$(mktemp /tmp/bug-hunt-hunter-XXXXXX.md)
+```
 
-For external providers, the prompt content must include the full hunter prompt. If the prompt is too long for a single shell argument, write it to a temporary file first and pass it via stdin:
+Write the prompt content to `$PROMPT_FILE` using the Write tool, then invoke the CLI via stdin:
 
-- **Codex:** `cat /tmp/bug-hunt-hunter-prompt.md | codex exec --stdin`
-- **Gemini:** `cat /tmp/bug-hunt-hunter-prompt.md | gemini -p -`
+- **Codex:** `cat "$PROMPT_FILE" | codex exec -`
+- **Gemini:** `cat "$PROMPT_FILE" | gemini -p -`
 
-Use whichever approach works with the installed CLI version. If the external CLI is not installed, report the error clearly and suggest installing it.
+**Never interpolate prompt content or scan target directly into shell command strings.** Always pass via stdin or file to prevent injection.
+
+If the external CLI is not installed, report the error clearly and suggest installing it. Clean up the temp file after capturing the output.
 
 Wait for completion and capture the full output.
 
-## Step 2b: Check for findings
+## Step 2b: Check Hunter success and findings
+
+**First, verify the Hunter completed successfully.** If the Hunter agent failed (CLI error, crash, empty output, or missing structured findings), stop immediately and report the error to the user. Do not proceed to the Skeptic or Referee.
 
 If the Hunter reported TOTAL FINDINGS: 0, skip Steps 3-4 and go directly to Step 5 with a clean report. No need to run Skeptic and Referee on zero findings.
 
@@ -90,7 +105,20 @@ Launch a NEW general-purpose subagent with the skeptic prompt via the Agent tool
 The Skeptic must independently read the code to verify each claim.
 
 **If provider is `codex` or `gemini`:**
-Run the external CLI tool via the Bash tool, passing the skeptic prompt combined with the Hunter's structured bug list. Use the same command format as Step 2 but with the skeptic prompt and the injected bug list.
+Write the full prompt (skeptic instructions + Hunter's structured bug list) to a unique temporary file using `mktemp`:
+
+```bash
+PROMPT_FILE=$(mktemp /tmp/bug-hunt-skeptic-XXXXXX.md)
+```
+
+Write the prompt content to `$PROMPT_FILE`, then invoke the CLI via stdin:
+
+- **Codex:** `cat "$PROMPT_FILE" | codex exec -`
+- **Gemini:** `cat "$PROMPT_FILE" | gemini -p -`
+
+**Never interpolate prompt content or report data directly into shell command strings.** Always pass via stdin or file.
+
+Clean up the temp file after capturing the output.
 
 Wait for completion and capture the full output.
 
@@ -106,7 +134,20 @@ Launch a NEW general-purpose subagent with the referee prompt via the Agent tool
 The Referee must independently read the code to make final judgments.
 
 **If provider is `codex` or `gemini`:**
-Run the external CLI tool via the Bash tool, passing the referee prompt combined with both the Hunter's and Skeptic's reports. Use the same command format as Step 2 but with the referee prompt and both injected reports.
+Write the full prompt (referee instructions + Hunter's report + Skeptic's report) to a unique temporary file using `mktemp`:
+
+```bash
+PROMPT_FILE=$(mktemp /tmp/bug-hunt-referee-XXXXXX.md)
+```
+
+Write the prompt content to `$PROMPT_FILE`, then invoke the CLI via stdin:
+
+- **Codex:** `cat "$PROMPT_FILE" | codex exec -`
+- **Gemini:** `cat "$PROMPT_FILE" | gemini -p -`
+
+**Never interpolate prompt content or report data directly into shell command strings.** Always pass via stdin or file.
+
+Clean up the temp file after capturing the output.
 
 Wait for completion and capture the full output.
 
