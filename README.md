@@ -1,4 +1,4 @@
-# Bug Hunters
+# Bug Hunt
 
 Adversarial bug finding skill for [Claude Code](https://claude.com/claude-code). Uses 3 isolated AI agents to find and verify real bugs with high fidelity.
 
@@ -15,7 +15,7 @@ Each agent runs in a **completely isolated context** — they can't see each oth
 ## Install
 
 ```bash
-git clone https://github.com/danpeguine/bug-hunters.git ~/.claude/skills/bug-hunters
+git clone https://github.com/danpeg/bug-hunt.git ~/.claude/skills/bug-hunt
 ```
 
 Claude Code auto-discovers skills in `~/.claude/skills/`.
@@ -31,13 +31,13 @@ Claude Code auto-discovers skills in `~/.claude/skills/`.
 ## Update
 
 ```bash
-cd ~/.claude/skills/bug-hunters && git pull
+cd ~/.claude/skills/bug-hunt && git pull
 ```
 
 ## Uninstall
 
 ```bash
-rm -rf ~/.claude/skills/bug-hunters
+rm -rf ~/.claude/skills/bug-hunt
 ```
 
 ## How the scoring works
