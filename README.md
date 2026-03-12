@@ -25,10 +25,14 @@ Claude Code auto-discovers skills in `~/.claude/skills/`.
 ## Usage
 
 ```
-/bug-hunt              # Scan entire project
-/bug-hunt src/         # Scan specific directory
-/bug-hunt lib/auth.ts  # Scan specific file
+/bug-hunt                              # Scan entire project
+/bug-hunt src/                         # Scan specific directory
+/bug-hunt lib/auth.ts                  # Scan specific file
+/bug-hunt -b feature-xyz              # Scan files changed in feature-xyz vs main
+/bug-hunt -b feature-xyz --base dev   # Scan files changed in feature-xyz vs dev
 ```
+
+**Branch diff mode** (`-b`) scans only files changed in a branch compared to a base branch (defaults to `main`). It reads the full file contents — not just the diff — so bug detection quality is preserved.
 
 ### Dynamic Model Assignment
 
@@ -65,7 +69,6 @@ Individual flags override preset values:
 | `gemini` | [Gemini CLI](https://github.com/google-gemini/gemini-cli) | `npm install -g @google/gemini-cli` |
 
 Claude roles run as isolated Claude Code subagents. Codex and Gemini roles shell out to their respective CLI tools.
-
 ## Update
 
 ```bash
